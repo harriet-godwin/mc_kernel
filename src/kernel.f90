@@ -242,7 +242,9 @@ subroutine cut_and_add_seismogram(this, seis, deconv_stf, write_smgr, timeshift_
    seis_disp_filtered_fd = this%filter%apply_2d(seis_disp_fd, kind='fwd')
    seis_velo_filtered_fd = this%filter%apply_2d(seis_velo_fd, kind='fwd')
 
-   call fft_data%irfft(seis_disp_filtered_fd, seis_disp_filtered)
+   ! ouput unfiltered seismogram
+   call fft_data%irfft(seis_disp_fd, seis_disp_filtered)
+  ! call fft_data%irfft(seis_disp_filtered_fd, seis_disp_filtered)
    call fft_data%irfft(seis_velo_filtered_fd, seis_velo_filtered)
 
    call check_NaN(seis_velo_filtered, isnan, nan_loc)
@@ -366,7 +368,8 @@ subroutine cut_and_add_seismogram(this, seis, deconv_stf, write_smgr, timeshift_
    if ((firstslave.and.write_smgr).or.testing) then
       open(unit=100,file='./Seismograms/seism_raw_'//trim(this%name), action='write')
       do isample = 1, size(seis,1)
-         write(100,*) this%t(isample), seis(isample)
+          ! write out unfiltered displacement seis as well as filter vel seis
+         write(100,*) this%t(isample), seis_disp_td(isample, 1), seis(isample)
       end do
       close(100)
 
